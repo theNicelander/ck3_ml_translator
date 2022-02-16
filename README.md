@@ -11,3 +11,17 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Usage
+1. Place the localization files into the english localization folder
+2. Run app.py using `python app.py`
+
+It will then go through each localization file, and translate it one by one into the following languages:
+
+- french
+- spanish
+- german
+- russian
+- korean
+- simp_chinese
+
+It takes a while, as the GoogleAPI is limited to one request every 2 seconds.
