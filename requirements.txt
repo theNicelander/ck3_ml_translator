@@ -1,0 +1,4 @@
+pyyaml
+black
+tqdm
+googletrans==4.0.0rc1
