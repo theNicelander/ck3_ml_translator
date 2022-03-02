@@ -1,7 +1,6 @@
 import os
 import time
 from tqdm import tqdm
-import dl_translate as dlt
 from googletrans import Translator
 
 from ck3_translator.file_utils import load_yaml
