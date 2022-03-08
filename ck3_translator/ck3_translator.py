@@ -2,6 +2,7 @@ import os
 import time
 from tqdm import tqdm
 from googletrans import Translator
+import re
 
 from ck3_translator.file_utils import load_yaml
 
@@ -18,6 +19,10 @@ class Base:
         self.translator = Translator()
         self.sleep_timer = sleep_timer
 
+        self.token_pattern = re.compile(r'(?:\[[^\]]+\])|(?:\$[^$]+\$)') # [text] | {text}
+        self.placeholder = '@'
+        self.extra_placeholder = re.compile(r'\s*'+self.placeholder)
+
     def _translate_text(self, text, target_lang) -> str:
         if target_lang == 'simp_chinese':
             target_lang = "zh-cn"
@@ -30,8 +35,9 @@ class Base:
 
         tmp_dict = {}
         for key, text in tqdm(source.items()):
-            translation = self._translate_text(text, target_lang)
-            tmp_dict[key] = translation
+            cleaned_text, special_tokens = self.gather_tokens(text)
+            translation = self._translate_text(cleaned_text, target_lang)
+            tmp_dict[key] = self.fill_back_tokens(translation,special_tokens)
 
         return {f"l_{target_lang}": tmp_dict}
 
@@ -43,6 +49,20 @@ class Base:
             f.write(f"{lang}:\n")
             for k, v in output.items():
                 f.write(f'  {k}:0 "{v}"\n')
+
+    def gather_tokens(self, text):
+        return re.sub(self.token_pattern, self.placeholder, text), re.findall(self.token_pattern, text)
+
+    def fill_back_tokens(self, text, tokens):
+        new_text = ""
+        x = 0
+        for c in text:
+            if c == self.placeholder and x < len(tokens):
+                new_text += tokens[x]
+                x += 1
+            else:
+                new_text += c
+        return re.sub(self.extra_placeholder, "", new_text)
 
 
 class TranslatorCK3(Base):

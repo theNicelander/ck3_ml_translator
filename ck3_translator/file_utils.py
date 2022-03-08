@@ -14,7 +14,7 @@ def clean_ck3_yaml(text: str) -> str:
 
 def read_file_into_string(filename) -> str:
     """Read any file into a string"""
-    with open(filename) as f:
+    with open(filename, encoding="utf_8_sig") as f:
         text = f.read()
     return text
 
